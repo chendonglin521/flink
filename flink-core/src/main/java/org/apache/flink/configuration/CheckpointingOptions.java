@@ -147,6 +147,12 @@ public class CheckpointingOptions {
 			.withDescription("The minimum size of state data files. All state chunks smaller than that are stored" +
 				" inline in the root checkpoint metadata file. The max memory threshold for this configuration is 1MB.");
 
+	/** Flag Whether to enable recursively deletion. If true, can reduce delete api call in the full checkpoint scenario */
+	public static final ConfigOption<Boolean> ENABLE_DELETE_RECURSIVELY = ConfigOptions
+		.key("completed.checkpoint.delete.recursive")
+		.defaultValue(true)
+		.withDescription("Whether to enable delete api optimization");
+
 	/**
 	 * The default size of the write buffer for the checkpoint streams that write to file systems.
 	 */

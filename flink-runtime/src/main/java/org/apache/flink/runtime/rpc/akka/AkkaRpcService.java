@@ -472,6 +472,14 @@ public class AkkaRpcService implements RpcService {
 		return Tuple2.of(actorAddress, hostname);
 	}
 
+	/**
+	 * 组件之间相互建立连接
+	 * @param address
+	 * @param clazz
+	 * @param invocationHandlerFactory
+	 * @param <C>
+	 * @return
+	 */
 	private <C extends RpcGateway> CompletableFuture<C> connectInternal(
 			final String address,
 			final Class<C> clazz,
@@ -481,11 +489,13 @@ public class AkkaRpcService implements RpcService {
 		LOG.debug("Try to connect to remote RPC endpoint with address {}. Returning a {} gateway.",
 			address, clazz.getName());
 
+		// 通过address 在系统中匹配
 		final CompletableFuture<ActorRef> actorRefFuture = resolveActorAddress(address);
 
 		final CompletableFuture<HandshakeSuccessMessage> handshakeFuture = actorRefFuture.thenCompose(
 			(ActorRef actorRef) -> FutureUtils.toJava(
 				Patterns
+					// ask handshake message
 					.ask(actorRef, new RemoteHandshakeMessage(clazz, getVersion()), configuration.getTimeout().toMilliseconds())
 					.<HandshakeSuccessMessage>mapTo(ClassTag$.MODULE$.<HandshakeSuccessMessage>apply(HandshakeSuccessMessage.class))));
 
@@ -493,12 +503,14 @@ public class AkkaRpcService implements RpcService {
 			handshakeFuture,
 			(ActorRef actorRef, HandshakeSuccessMessage ignored) -> {
 				InvocationHandler invocationHandler = invocationHandlerFactory.apply(actorRef);
+				// handshake success
 
 				// Rather than using the System ClassLoader directly, we derive the ClassLoader
 				// from this class . That works better in cases where Flink runs embedded and all Flink
 				// code is loaded dynamically (for example from an OSGI bundle) through a custom ClassLoader
 				ClassLoader classLoader = getClass().getClassLoader();
 
+				// 代理生成对应的RpcGateway
 				@SuppressWarnings("unchecked")
 				C proxy = (C) Proxy.newProxyInstance(
 					classLoader,
@@ -507,6 +519,7 @@ public class AkkaRpcService implements RpcService {
 
 				return proxy;
 			},
+			//	指定executor
 			actorSystem.dispatcher());
 	}
 

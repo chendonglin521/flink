@@ -115,7 +115,7 @@ public class JMXReporterTest extends TestLogger {
 			MetricRegistryConfiguration.defaultMetricRegistryConfiguration(),
 			Arrays.asList(reporterSetup1, reporterSetup2));
 
-		TaskManagerMetricGroup mg = new TaskManagerMetricGroup(reg, "host", "tm");
+		TaskManagerMetricGroup mg = new TaskManagerMetricGroup(reg, "host", "tm", );
 
 		List<MetricReporter> reporters = reg.getReporters();
 
@@ -169,7 +169,7 @@ public class JMXReporterTest extends TestLogger {
 			MetricRegistryConfiguration.defaultMetricRegistryConfiguration(),
 			Arrays.asList(reporterSetup1, reporterSetup2));
 
-		TaskManagerMetricGroup mg = new TaskManagerMetricGroup(reg, "host", "tm");
+		TaskManagerMetricGroup mg = new TaskManagerMetricGroup(reg, "host", "tm", );
 
 		List<MetricReporter> reporters = reg.getReporters();
 
@@ -241,7 +241,7 @@ public class JMXReporterTest extends TestLogger {
 				MetricRegistryConfiguration.defaultMetricRegistryConfiguration(),
 				Collections.singletonList(ReporterSetup.forReporter("test", new JMXReporter(null))));
 
-			TaskManagerMetricGroup metricGroup = new TaskManagerMetricGroup(registry, "localhost", "tmId");
+			TaskManagerMetricGroup metricGroup = new TaskManagerMetricGroup(registry, "localhost", "tmId", );
 
 			TestHistogram histogram = new TestHistogram();
 
@@ -290,7 +290,7 @@ public class JMXReporterTest extends TestLogger {
 				MetricRegistryConfiguration.defaultMetricRegistryConfiguration(),
 				Collections.singletonList(ReporterSetup.forReporter("test", new JMXReporter(null))));
 
-			TaskManagerMetricGroup metricGroup = new TaskManagerMetricGroup(registry, "localhost", "tmId");
+			TaskManagerMetricGroup metricGroup = new TaskManagerMetricGroup(registry, "localhost", "tmId", );
 
 			TestMeter meter = new TestMeter();
 

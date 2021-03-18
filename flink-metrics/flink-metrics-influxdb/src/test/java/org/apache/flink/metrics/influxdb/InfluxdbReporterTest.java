@@ -139,7 +139,7 @@ public class InfluxdbReporterTest extends TestLogger {
 	}
 
 	private static Counter registerTestMetric(String metricName, MetricRegistry metricRegistry) {
-		TaskManagerMetricGroup metricGroup = new TaskManagerMetricGroup(metricRegistry, METRIC_HOSTNAME, METRIC_TM_ID);
+		TaskManagerMetricGroup metricGroup = new TaskManagerMetricGroup(metricRegistry, METRIC_HOSTNAME, METRIC_TM_ID, );
 		return metricGroup.counter(metricName);
 	}
 }

@@ -66,6 +66,7 @@ import static org.junit.Assert.assertTrue;
 public class MetricRegistryImplTest extends TestLogger {
 
 	private static final char GLOBAL_DEFAULT_DELIMITER = '.';
+	private static final int metricNameMaxLength = 80;
 
 	@Test
 	public void testIsShutdown() throws Exception {
@@ -215,7 +216,7 @@ public class MetricRegistryImplTest extends TestLogger {
 				ReporterSetup.forReporter("test1", new TestReporter6()),
 				ReporterSetup.forReporter("test2", new TestReporter7())));
 
-		TaskManagerMetricGroup root = new TaskManagerMetricGroup(registry, "host", "id");
+		TaskManagerMetricGroup root = new TaskManagerMetricGroup(registry, "host", "id", metricNameMaxLength);
 		root.counter("rootCounter");
 
 		assertTrue(TestReporter6.addedMetric instanceof Counter);
@@ -309,7 +310,7 @@ public class MetricRegistryImplTest extends TestLogger {
 
 		MetricRegistryImpl registry = new MetricRegistryImpl(MetricRegistryConfiguration.fromConfiguration(config), ReporterSetup.fromConfiguration(config, null));
 
-		TaskManagerMetricGroup tmGroup = new TaskManagerMetricGroup(registry, "host", "id");
+		TaskManagerMetricGroup tmGroup = new TaskManagerMetricGroup(registry, "host", "id", metricNameMaxLength);
 		assertEquals("A_B_C_D_E_name", tmGroup.getMetricIdentifier("name"));
 
 		registry.shutdown().get();
@@ -379,7 +380,7 @@ public class MetricRegistryImplTest extends TestLogger {
 		((TestReporter8) reporters.get(2)).expectedDelimiter = GLOBAL_DEFAULT_DELIMITER; //test3 reporter, because 'AA' - not correct delimiter
 		((TestReporter8) reporters.get(3)).expectedDelimiter = GLOBAL_DEFAULT_DELIMITER; //for test4 reporter use global delimiter
 
-		TaskManagerMetricGroup group = new TaskManagerMetricGroup(registry, "host", "id");
+		TaskManagerMetricGroup group = new TaskManagerMetricGroup(registry, "host", "id", metricNameMaxLength);
 		group.counter("C");
 		group.close();
 		registry.shutdown().get();

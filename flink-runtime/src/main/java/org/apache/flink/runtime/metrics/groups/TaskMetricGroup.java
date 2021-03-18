@@ -62,6 +62,8 @@ public class TaskMetricGroup extends ComponentMetricGroup<TaskManagerJobMetricGr
 
 	private final int attemptNumber;
 
+	private final int metricNameMaxLength;
+
 	// ------------------------------------------------------------------------
 
 	public TaskMetricGroup(
@@ -75,11 +77,18 @@ public class TaskMetricGroup extends ComponentMetricGroup<TaskManagerJobMetricGr
 		super(registry, registry.getScopeFormats().getTaskFormat().formatScope(
 			checkNotNull(parent), vertexId, checkNotNull(executionId), taskName, subtaskIndex, attemptNumber), parent);
 
+		this.metricNameMaxLength = parent.parent.metricNameMaxLength;
 		this.executionId = checkNotNull(executionId);
 		this.vertexId = vertexId;
-		this.taskName = taskName;
 		this.subtaskIndex = subtaskIndex;
 		this.attemptNumber = attemptNumber;
+
+		if (taskName != null && taskName.length() > metricNameMaxLength) {
+			LOG.warn("The task name {} exceeded the {} characters length limit and was truncated.", taskName, metricNameMaxLength);
+			this.taskName = taskName.substring(0, metricNameMaxLength);
+		} else {
+			this.taskName = taskName;
+		}
 
 		this.ioMetrics = new TaskIOMetricGroup(this);
 	}
@@ -141,9 +150,9 @@ public class TaskMetricGroup extends ComponentMetricGroup<TaskManagerJobMetricGr
 
 	public OperatorMetricGroup getOrAddOperator(OperatorID operatorID, String name) {
 		final String metricName;
-		if (name != null && name.length() > METRICS_OPERATOR_NAME_MAX_LENGTH) {
-			LOG.warn("The operator name {} exceeded the {} characters length limit and was truncated.", name, METRICS_OPERATOR_NAME_MAX_LENGTH);
-			metricName = name.substring(0, METRICS_OPERATOR_NAME_MAX_LENGTH);
+		if (name != null && name.length() > metricNameMaxLength) {
+			LOG.warn("The operator name {} exceeded the {} characters length limit and was truncated.", name, metricNameMaxLength);
+			metricName = name.substring(0, metricNameMaxLength);
 		} else {
 			metricName = name;
 		}

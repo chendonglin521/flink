@@ -88,7 +88,7 @@ public class PrometheusReporterTest extends TestLogger {
 			Collections.singletonList(createReporterSetup("test1", portRangeProvider.next())));
 		metricGroup = new FrontMetricGroup<>(
 			createReporterScopedSettings(),
-			new TaskManagerMetricGroup(registry, HOST_NAME, TASK_MANAGER));
+			new TaskManagerMetricGroup(registry, HOST_NAME, TASK_MANAGER, ));
 		reporter = (PrometheusReporter) registry.getReporters().get(0);
 	}
 
@@ -170,7 +170,7 @@ public class PrometheusReporterTest extends TestLogger {
 
 	@Test
 	public void metricIsRemovedWhenCollectorIsNotUnregisteredYet() throws UnirestException {
-		TaskManagerMetricGroup tmMetricGroup = new TaskManagerMetricGroup(registry, HOST_NAME, TASK_MANAGER);
+		TaskManagerMetricGroup tmMetricGroup = new TaskManagerMetricGroup(registry, HOST_NAME, TASK_MANAGER, );
 
 		String metricName = "metric";
 

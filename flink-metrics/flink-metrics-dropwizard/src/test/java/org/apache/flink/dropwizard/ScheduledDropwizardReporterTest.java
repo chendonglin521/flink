@@ -82,6 +82,7 @@ public class ScheduledDropwizardReporterTest {
 		String hostname = "loc<>al\"::host\".:";
 		String taskManagerId = "tas:kMana::ger";
 		String counterName = "testCounter";
+		int metricNameMaxLength = 80;
 
 		configuration.setString(MetricOptions.SCOPE_NAMING_TASK, "<host>.<tm_id>.<job_name>");
 		configuration.setString(MetricOptions.SCOPE_DELIMITER, "_");
@@ -94,7 +95,7 @@ public class ScheduledDropwizardReporterTest {
 
 		char delimiter = metricRegistry.getDelimiter();
 
-		TaskManagerMetricGroup tmMetricGroup = new TaskManagerMetricGroup(metricRegistry, hostname, taskManagerId);
+		TaskManagerMetricGroup tmMetricGroup = new TaskManagerMetricGroup(metricRegistry, hostname, taskManagerId, metricNameMaxLength);
 		TaskManagerJobMetricGroup tmJobMetricGroup = new TaskManagerJobMetricGroup(metricRegistry, tmMetricGroup, new JobID(), jobName);
 		TaskMetricGroup taskMetricGroup = new TaskMetricGroup(metricRegistry, tmJobMetricGroup, new JobVertexID(), new ExecutionAttemptID(), taskName, 0, 0);
 

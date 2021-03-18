@@ -136,9 +136,10 @@ public class UnregisteredMetricGroups {
 	public static class UnregisteredTaskManagerMetricGroup extends TaskManagerMetricGroup {
 		private static final String DEFAULT_HOST_NAME = "UnregisteredHost";
 		private static final String DEFAULT_TASKMANAGER_ID = "0";
+		private static final Integer DEFAULT_TASKMANAGER_METRIC_NAME_MAX_LENGTH = 80;
 
 		protected UnregisteredTaskManagerMetricGroup() {
-			super(NoOpMetricRegistry.INSTANCE, DEFAULT_HOST_NAME, DEFAULT_TASKMANAGER_ID);
+			super(NoOpMetricRegistry.INSTANCE, DEFAULT_HOST_NAME, DEFAULT_TASKMANAGER_ID, DEFAULT_TASKMANAGER_METRIC_NAME_MAX_LENGTH);
 		}
 
 		@Override

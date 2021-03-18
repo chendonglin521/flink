@@ -87,6 +87,8 @@ public class TaskManagerServicesConfiguration {
 
 	private final int numIoThreads;
 
+	private final int metricNameMaxLength;
+
 	private TaskManagerServicesConfiguration(
 			Configuration configuration,
 			ResourceID resourceID,
@@ -106,7 +108,8 @@ public class TaskManagerServicesConfiguration {
 			Optional<Time> systemResourceMetricsProbingInterval,
 			FlinkUserCodeClassLoaders.ResolveOrder classLoaderResolveOrder,
 			String[] alwaysParentFirstLoaderPatterns,
-			int numIoThreads) {
+			int numIoThreads,
+			int metricNameMaxLength) {
 		this.configuration = checkNotNull(configuration);
 		this.resourceID = checkNotNull(resourceID);
 
@@ -133,6 +136,7 @@ public class TaskManagerServicesConfiguration {
 		this.retryingRegistrationConfiguration = checkNotNull(retryingRegistrationConfiguration);
 
 		this.systemResourceMetricsProbingInterval = checkNotNull(systemResourceMetricsProbingInterval);
+		this.metricNameMaxLength = metricNameMaxLength;
 	}
 
 	// --------------------------------------------------------------------------------------------
@@ -224,6 +228,10 @@ public class TaskManagerServicesConfiguration {
 		return numIoThreads;
 	}
 
+	public int getMetricNameMaxLength() {
+		return metricNameMaxLength;
+	}
+
 	// --------------------------------------------------------------------------------------------
 	//  Parsing of Flink configuration
 	// --------------------------------------------------------------------------------------------
@@ -273,6 +281,8 @@ public class TaskManagerServicesConfiguration {
 
 		final int numIoThreads = ClusterEntrypointUtils.getPoolSize(configuration);
 
+		final int metricNameMaxLength = configuration.getInteger(TaskManagerOptions.TASK_MANAGER_METRIC_NAME_MAX_LENGTH);
+
 		return new TaskManagerServicesConfiguration(
 			configuration,
 			resourceID,
@@ -292,6 +302,7 @@ public class TaskManagerServicesConfiguration {
 			ConfigurationUtils.getSystemResourceMetricsProbingInterval(configuration),
 			FlinkUserCodeClassLoaders.ResolveOrder.fromString(classLoaderResolveOrder),
 			alwaysParentFirstLoaderPatterns,
-			numIoThreads);
+			numIoThreads,
+			metricNameMaxLength);
 	}
 }

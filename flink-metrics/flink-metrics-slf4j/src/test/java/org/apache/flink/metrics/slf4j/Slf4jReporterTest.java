@@ -78,7 +78,7 @@ public class Slf4jReporterTest extends TestLogger {
 			Collections.singletonList(ReporterSetup.forReporter("slf4j", new Slf4jReporter())));
 		delimiter = registry.getDelimiter();
 
-		taskMetricGroup = new TaskManagerMetricGroup(registry, HOST_NAME, TASK_MANAGER_ID)
+		taskMetricGroup = new TaskManagerMetricGroup(registry, HOST_NAME, TASK_MANAGER_ID, )
 			.addTaskForJob(new JobID(), JOB_NAME, new JobVertexID(), new ExecutionAttemptID(), TASK_NAME, 0, 0);
 		reporter = (Slf4jReporter) registry.getReporters().get(0);
 	}

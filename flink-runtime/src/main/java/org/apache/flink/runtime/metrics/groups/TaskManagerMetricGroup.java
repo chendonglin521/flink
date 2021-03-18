@@ -46,10 +46,18 @@ public class TaskManagerMetricGroup extends ComponentMetricGroup<TaskManagerMetr
 
 	private final String taskManagerId;
 
-	public TaskManagerMetricGroup(MetricRegistry registry, String hostname, String taskManagerId) {
+	public final int metricNameMaxLength;
+
+	public TaskManagerMetricGroup(
+		MetricRegistry registry,
+		String hostname,
+		String taskManagerId,
+		int metricNameMaxLength) {
+
 		super(registry, registry.getScopeFormats().getTaskManagerFormat().formatScope(hostname, taskManagerId), null);
 		this.hostname = hostname;
 		this.taskManagerId = taskManagerId;
+		this.metricNameMaxLength = metricNameMaxLength;
 	}
 
 	public String hostname() {

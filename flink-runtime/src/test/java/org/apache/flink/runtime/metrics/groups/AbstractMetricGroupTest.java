@@ -55,6 +55,8 @@ import static org.junit.Assert.assertTrue;
  * Tests for the {@link AbstractMetricGroup}.
  */
 public class AbstractMetricGroupTest extends TestLogger {
+	private static final int metricNameMaxLength = 80;
+
 	/**
 	 * Verifies that no {@link NullPointerException} is thrown when {@link AbstractMetricGroup#getAllVariables()} is
 	 * called and the parent is null.
@@ -154,7 +156,7 @@ public class AbstractMetricGroupTest extends TestLogger {
 				ReporterSetup.forReporter("test1", metricConfig1, new TestReporter1()),
 				ReporterSetup.forReporter("test2", metricConfig2, new TestReporter2())));
 		try {
-			MetricGroup tmGroup = new TaskManagerMetricGroup(testRegistry, "host", "id");
+			MetricGroup tmGroup = new TaskManagerMetricGroup(testRegistry, "host", "id", metricNameMaxLength);
 			tmGroup.counter("1");
 			assertEquals("Reporters were not properly instantiated", 2, testRegistry.getReporters().size());
 			for (MetricReporter reporter : testRegistry.getReporters()) {
@@ -176,7 +178,7 @@ public class AbstractMetricGroupTest extends TestLogger {
 				ReporterSetup.forReporter("test1", new LogicalScopeReporter1()),
 				ReporterSetup.forReporter("test2", new LogicalScopeReporter2())));
 		try {
-			MetricGroup tmGroup = new TaskManagerMetricGroup(testRegistry, "host", "id")
+			MetricGroup tmGroup = new TaskManagerMetricGroup(testRegistry, "host", "id", metricNameMaxLength)
 				.addGroup("B")
 				.addGroup("C");
 			tmGroup.counter("1");
@@ -302,7 +304,7 @@ public class AbstractMetricGroupTest extends TestLogger {
 			MetricRegistryConfiguration.fromConfiguration(config));
 
 		try {
-			TaskManagerMetricGroup group = new TaskManagerMetricGroup(testRegistry, "host", "id");
+			TaskManagerMetricGroup group = new TaskManagerMetricGroup(testRegistry, "host", "id", metricNameMaxLength);
 			assertEquals("MetricReporters list should be empty", 0, testRegistry.getReporters().size());
 
 			// default delimiter should be used

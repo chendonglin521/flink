@@ -46,6 +46,7 @@ import static org.junit.Assert.assertNotNull;
  */
 public class OperatorGroupTest extends TestLogger {
 
+	private static final int metricNameMaxLength = 80;
 	private MetricRegistryImpl registry;
 
 	@Before
@@ -62,7 +63,7 @@ public class OperatorGroupTest extends TestLogger {
 
 	@Test
 	public void testGenerateScopeDefault() throws Exception {
-		TaskManagerMetricGroup tmGroup = new TaskManagerMetricGroup(registry, "theHostName", "test-tm-id");
+		TaskManagerMetricGroup tmGroup = new TaskManagerMetricGroup(registry, "theHostName", "test-tm-id", metricNameMaxLength);
 		TaskManagerJobMetricGroup jmGroup = new TaskManagerJobMetricGroup(registry, tmGroup, new JobID(), "myJobName");
 		TaskMetricGroup taskGroup = new TaskMetricGroup(
 				registry, jmGroup,  new JobVertexID(),  new ExecutionAttemptID(), "aTaskName", 11, 0);
@@ -90,7 +91,7 @@ public class OperatorGroupTest extends TestLogger {
 			String operatorName = "operatorName";
 
 			OperatorMetricGroup operatorGroup =
-				new TaskManagerMetricGroup(registry, "theHostName", tmID)
+				new TaskManagerMetricGroup(registry, "theHostName", tmID, metricNameMaxLength)
 					.addTaskForJob(jid, "myJobName", vertexId, new ExecutionAttemptID(), "aTaskname", 13, 2)
 					.getOrAddOperator(operatorID, operatorName);
 
@@ -108,7 +109,7 @@ public class OperatorGroupTest extends TestLogger {
 
 	@Test
 	public void testIOMetricGroupInstantiation() throws Exception {
-		TaskManagerMetricGroup tmGroup = new TaskManagerMetricGroup(registry, "theHostName", "test-tm-id");
+		TaskManagerMetricGroup tmGroup = new TaskManagerMetricGroup(registry, "theHostName", "test-tm-id", metricNameMaxLength);
 		TaskManagerJobMetricGroup jmGroup = new TaskManagerJobMetricGroup(registry, tmGroup, new JobID(), "myJobName");
 		TaskMetricGroup taskGroup = new TaskMetricGroup(
 			registry, jmGroup, new JobVertexID(), new ExecutionAttemptID(), "aTaskName", 11, 0);
@@ -126,7 +127,7 @@ public class OperatorGroupTest extends TestLogger {
 		ExecutionAttemptID eid = new ExecutionAttemptID();
 		OperatorID oid = new OperatorID();
 
-		TaskManagerMetricGroup tmGroup = new TaskManagerMetricGroup(registry, "theHostName", "test-tm-id");
+		TaskManagerMetricGroup tmGroup = new TaskManagerMetricGroup(registry, "theHostName", "test-tm-id", metricNameMaxLength);
 		TaskManagerJobMetricGroup jmGroup = new TaskManagerJobMetricGroup(registry, tmGroup, jid, "myJobName");
 		TaskMetricGroup taskGroup = new TaskMetricGroup(
 			registry, jmGroup,  tid,  eid, "aTaskName", 11, 0);
@@ -159,7 +160,7 @@ public class OperatorGroupTest extends TestLogger {
 		JobVertexID vid = new JobVertexID();
 		ExecutionAttemptID eid = new ExecutionAttemptID();
 		OperatorID oid = new OperatorID();
-		TaskManagerMetricGroup tm = new TaskManagerMetricGroup(registry, "host", "id");
+		TaskManagerMetricGroup tm = new TaskManagerMetricGroup(registry, "host", "id", metricNameMaxLength);
 		TaskManagerJobMetricGroup job = new TaskManagerJobMetricGroup(registry, tm, jid, "jobname");
 		TaskMetricGroup task = new TaskMetricGroup(registry, job, vid, eid, "taskName", 4, 5);
 		OperatorMetricGroup operator = new OperatorMetricGroup(registry, task, oid, "operator");

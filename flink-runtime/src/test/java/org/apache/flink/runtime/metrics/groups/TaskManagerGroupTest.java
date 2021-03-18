@@ -46,6 +46,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class TaskManagerGroupTest extends TestLogger {
 
+	private static final int metricNameMaxLength = 80;
 	private MetricRegistryImpl registry;
 
 	@Before
@@ -67,7 +68,7 @@ public class TaskManagerGroupTest extends TestLogger {
 	@Test
 	public void addAndRemoveJobs() throws IOException {
 		final TaskManagerMetricGroup group = new TaskManagerMetricGroup(
-				registry, "localhost", new AbstractID().toString());
+				registry, "localhost", new AbstractID().toString(), metricNameMaxLength);
 
 		final JobID jid1 = new JobID();
 		final JobID jid2 = new JobID();
@@ -125,7 +126,7 @@ public class TaskManagerGroupTest extends TestLogger {
 	@Test
 	public void testCloseClosesAll() throws IOException {
 		final TaskManagerMetricGroup group = new TaskManagerMetricGroup(
-			registry, "localhost", new AbstractID().toString());
+			registry, "localhost", new AbstractID().toString(), metricNameMaxLength);
 
 		final JobID jid1 = new JobID();
 		final JobID jid2 = new JobID();
@@ -161,7 +162,7 @@ public class TaskManagerGroupTest extends TestLogger {
 
 	@Test
 	public void testGenerateScopeDefault() {
-		TaskManagerMetricGroup group = new TaskManagerMetricGroup(registry, "localhost", "id");
+		TaskManagerMetricGroup group = new TaskManagerMetricGroup(registry, "localhost", "id", metricNameMaxLength);
 
 		assertArrayEquals(new String[]{"localhost", "taskmanager", "id"}, group.getScopeComponents());
 		assertEquals("localhost.taskmanager.id.name", group.getMetricIdentifier("name"));
@@ -172,7 +173,7 @@ public class TaskManagerGroupTest extends TestLogger {
 		Configuration cfg = new Configuration();
 		cfg.setString(MetricOptions.SCOPE_NAMING_TM, "constant.<host>.foo.<host>");
 		MetricRegistryImpl registry = new MetricRegistryImpl(MetricRegistryConfiguration.fromConfiguration(cfg));
-		TaskManagerMetricGroup group = new TaskManagerMetricGroup(registry, "host", "id");
+		TaskManagerMetricGroup group = new TaskManagerMetricGroup(registry, "host", "id", metricNameMaxLength);
 
 		assertArrayEquals(new String[]{"constant", "host", "foo", "host"}, group.getScopeComponents());
 		assertEquals("constant.host.foo.host.name", group.getMetricIdentifier("name"));
@@ -181,7 +182,7 @@ public class TaskManagerGroupTest extends TestLogger {
 
 	@Test
 	public void testCreateQueryServiceMetricInfo() {
-		TaskManagerMetricGroup tm = new TaskManagerMetricGroup(registry, "host", "id");
+		TaskManagerMetricGroup tm = new TaskManagerMetricGroup(registry, "host", "id", metricNameMaxLength);
 
 		QueryScopeInfo.TaskManagerQueryScopeInfo info = tm.createQueryServiceMetricInfo(new DummyCharacterFilter());
 		assertEquals("", info.scope);

@@ -566,6 +566,11 @@ public class TaskManagerOptions {
 			.withDescription("Time we wait for the timers in milliseconds to finish all pending timer threads" +
 				" when the stream task is cancelled.");
 
+	public static final ConfigOption<Integer> TASK_MANAGER_METRIC_NAME_MAX_LENGTH =
+		key("taskmanager.metric.name.length.max")
+			.intType()
+			.defaultValue(80)
+			.withDescription("");
 	// ------------------------------------------------------------------------
 
 	/** Not intended to be instantiated. */

@@ -307,7 +307,7 @@ public class MetricGroupTest extends TestLogger {
 		JobVertexID vid = new JobVertexID();
 		ExecutionAttemptID eid = new ExecutionAttemptID();
 		MetricRegistryImpl registry = new MetricRegistryImpl(defaultMetricRegistryConfiguration);
-		TaskManagerMetricGroup tm = new TaskManagerMetricGroup(registry, "host", "id");
+		TaskManagerMetricGroup tm = new TaskManagerMetricGroup(registry, "host", "id", 80);
 		TaskManagerJobMetricGroup job = new TaskManagerJobMetricGroup(registry, tm, jid, "jobname");
 		TaskMetricGroup task = new TaskMetricGroup(registry, job, vid, eid, "taskName", 4, 5);
 		GenericMetricGroup userGroup1 = new GenericMetricGroup(registry, task, "hello");

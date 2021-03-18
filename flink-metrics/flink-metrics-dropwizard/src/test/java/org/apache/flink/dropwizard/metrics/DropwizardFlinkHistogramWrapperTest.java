@@ -78,6 +78,7 @@ public class DropwizardFlinkHistogramWrapperTest extends AbstractHistogramTest {
 		long reportingInterval = 1000;
 		long timeout = 30000;
 		int size = 10;
+		int metricNameMaxLength = 80;
 		String histogramMetricName = "histogram";
 
 		MetricConfig config = new MetricConfig();
@@ -92,7 +93,7 @@ public class DropwizardFlinkHistogramWrapperTest extends AbstractHistogramTest {
 			DropwizardHistogramWrapper histogramWrapper = new DropwizardHistogramWrapper(
 				new com.codahale.metrics.Histogram(new SlidingWindowReservoir(size)));
 
-			TaskManagerMetricGroup metricGroup = new TaskManagerMetricGroup(registry, "localhost", "tmId");
+			TaskManagerMetricGroup metricGroup = new TaskManagerMetricGroup(registry, "localhost", "tmId", metricNameMaxLength);
 
 			metricGroup.histogram(histogramMetricName, histogramWrapper);
 

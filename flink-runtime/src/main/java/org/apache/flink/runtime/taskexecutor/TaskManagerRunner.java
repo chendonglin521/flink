@@ -427,7 +427,8 @@ public class TaskManagerRunner implements FatalErrorHandler, AutoCloseableAsync 
 			metricRegistry,
 			externalAddress,
 			resourceID,
-			taskManagerServicesConfiguration.getSystemResourceMetricsProbingInterval());
+			taskManagerServicesConfiguration.getSystemResourceMetricsProbingInterval(),
+			taskManagerServicesConfiguration.getMetricNameMaxLength());
 
 		final ExecutorService ioExecutor = Executors.newFixedThreadPool(
 			taskManagerServicesConfiguration.getNumIoThreads(),

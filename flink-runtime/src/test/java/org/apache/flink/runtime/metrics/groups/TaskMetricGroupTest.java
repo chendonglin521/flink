@@ -45,6 +45,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class TaskMetricGroupTest extends TestLogger {
 
+	private static final int metricNameMaxLength = 80;
 	private MetricRegistryImpl registry;
 
 	@Before
@@ -68,7 +69,7 @@ public class TaskMetricGroupTest extends TestLogger {
 		JobVertexID vertexId = new JobVertexID();
 		ExecutionAttemptID executionId = new ExecutionAttemptID();
 
-		TaskManagerMetricGroup tmGroup = new TaskManagerMetricGroup(registry, "theHostName", "test-tm-id");
+		TaskManagerMetricGroup tmGroup = new TaskManagerMetricGroup(registry, "theHostName", "test-tm-id", metricNameMaxLength);
 		TaskManagerJobMetricGroup jmGroup = new TaskManagerJobMetricGroup(registry, tmGroup, new JobID(), "myJobName");
 		TaskMetricGroup taskGroup = new TaskMetricGroup(registry, jmGroup, vertexId, executionId, "aTaskName", 13, 2);
 
@@ -93,7 +94,7 @@ public class TaskMetricGroupTest extends TestLogger {
 		JobVertexID vertexId = new JobVertexID();
 		ExecutionAttemptID executionId = new ExecutionAttemptID();
 
-		TaskManagerMetricGroup tmGroup = new TaskManagerMetricGroup(registry, "theHostName", "test-tm-id");
+		TaskManagerMetricGroup tmGroup = new TaskManagerMetricGroup(registry, "theHostName", "test-tm-id", metricNameMaxLength);
 		TaskManagerJobMetricGroup jmGroup = new TaskManagerJobMetricGroup(registry, tmGroup, jid, "myJobName");
 		TaskMetricGroup taskGroup = new TaskMetricGroup(
 				registry, jmGroup, vertexId, executionId, "aTaskName", 13, 2);
@@ -116,7 +117,7 @@ public class TaskMetricGroupTest extends TestLogger {
 
 		ExecutionAttemptID executionId = new ExecutionAttemptID();
 
-		TaskManagerMetricGroup tmGroup = new TaskManagerMetricGroup(registry, "theHostName", "test-tm-id");
+		TaskManagerMetricGroup tmGroup = new TaskManagerMetricGroup(registry, "theHostName", "test-tm-id", metricNameMaxLength);
 		TaskManagerJobMetricGroup jmGroup = new TaskManagerJobMetricGroup(registry, tmGroup, new JobID(), "myJobName");
 
 		TaskMetricGroup taskGroup = new TaskMetricGroup(
@@ -137,7 +138,7 @@ public class TaskMetricGroupTest extends TestLogger {
 		JobID jid = new JobID();
 		JobVertexID vid = new JobVertexID();
 		ExecutionAttemptID eid = new ExecutionAttemptID();
-		TaskManagerMetricGroup tm = new TaskManagerMetricGroup(registry, "host", "id");
+		TaskManagerMetricGroup tm = new TaskManagerMetricGroup(registry, "host", "id", metricNameMaxLength);
 		TaskManagerJobMetricGroup job = new TaskManagerJobMetricGroup(registry, tm, jid, "jobname");
 		TaskMetricGroup task = new TaskMetricGroup(registry, job, vid, eid, "taskName", 4, 5);
 
@@ -151,7 +152,7 @@ public class TaskMetricGroupTest extends TestLogger {
 	@Test
 	public void testTaskMetricGroupCleanup() throws Exception {
 		CountingMetricRegistry registry = new CountingMetricRegistry(new Configuration());
-		TaskManagerMetricGroup taskManagerMetricGroup = new TaskManagerMetricGroup(registry, "localhost", "0");
+		TaskManagerMetricGroup taskManagerMetricGroup = new TaskManagerMetricGroup(registry, "localhost", "0", metricNameMaxLength);
 		TaskManagerJobMetricGroup taskManagerJobMetricGroup = new TaskManagerJobMetricGroup(registry, taskManagerMetricGroup, new JobID(), "job");
 		TaskMetricGroup taskMetricGroup = new TaskMetricGroup(registry, taskManagerJobMetricGroup, new JobVertexID(), new ExecutionAttemptID(), "task", 0, 0);
 
@@ -171,7 +172,7 @@ public class TaskMetricGroupTest extends TestLogger {
 		Configuration cfg = new Configuration();
 		cfg.setString(MetricOptions.SCOPE_NAMING_OPERATOR, ScopeFormat.SCOPE_OPERATOR_NAME);
 		MetricRegistryImpl registry = new MetricRegistryImpl(MetricRegistryConfiguration.fromConfiguration(cfg));
-		TaskManagerMetricGroup tm = new TaskManagerMetricGroup(registry, "host", "id");
+		TaskManagerMetricGroup tm = new TaskManagerMetricGroup(registry, "host", "id", metricNameMaxLength);
 		TaskManagerJobMetricGroup job = new TaskManagerJobMetricGroup(registry, tm, new JobID(), "jobname");
 		TaskMetricGroup taskMetricGroup = new TaskMetricGroup(registry, job, new JobVertexID(), new ExecutionAttemptID(), "task", 0, 0);
 

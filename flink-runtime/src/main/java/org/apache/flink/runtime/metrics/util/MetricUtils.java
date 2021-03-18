@@ -119,11 +119,13 @@ public class MetricUtils {
 			MetricRegistry metricRegistry,
 			String hostName,
 			ResourceID resourceID,
-			Optional<Time> systemResourceProbeInterval) {
+			Optional<Time> systemResourceProbeInterval,
+			int metricNameMaxLength) {
 		final TaskManagerMetricGroup taskManagerMetricGroup = new TaskManagerMetricGroup(
 			metricRegistry,
 			hostName,
-			resourceID.toString());
+			resourceID.toString(),
+			80);
 
 		MetricGroup statusGroup = createAndInitializeStatusMetricGroup(taskManagerMetricGroup);
 

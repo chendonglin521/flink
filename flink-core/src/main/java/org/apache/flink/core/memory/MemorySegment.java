@@ -92,12 +92,32 @@ import java.nio.ReadOnlyBufferException;
  * actual implementation. This is easy for the JIT to recognize through class hierarchy analysis,
  * or by identifying that the invocations are monomorphic (all go to the same concrete
  * method implementation). Under these conditions, the JIT can perfectly inline methods.
+ * 单一实现类被加载，编译器会进行优化，
+ * 这就涉及到了 JIT 编译优化的问题。
+ * 因为以前 MemorySegment 是一个单独的 final 类，没有子类。JIT 编译时，所有要调用的方法都是确定的，
+ * 所有的方法调用都可以被去虚化（de-virtualized）和内联（inlined），
+ * 这可以极大地提高性能（MemroySegment的使用相当频繁）。
+ * 然而如果同时加载两个子类，那么 JIT 编译器就只能在真正运行到的时候才知道是哪个子类，这样就无法提前做优化。
+ * 实际测试的性能差距在 2.7 被左右
+ *
+ *
  */
 @Internal
 public abstract class MemorySegment {
 
 	/**
 	 * The unsafe handle for transparent memory copied (heap / off-heap).
+	 *
+	 * 用于执行低级别、不安全操作的方法，
+	 * 如直接访问系统内存资源、自主管理内存资源等，
+	 * 这些方法在提升Java运行效率、增强Java语言底层资源操作能力方面起到了很大的作用。
+	 *
+	 * 但由于Unsafe类使Java语言拥有了类似C语言指针一样操作内存空间的能力，这无疑也增加了程序发生相关指针问题的风险。
+	 * 在程序中过度、不正确使用Unsafe类会使得程序出错的概率变大，使得Java这种安全的语言变得不再“安全”，
+	 * 因此对Unsafe的使用一定要慎重。
+	 *
+	 * 大部分都是native方法，类似C语言 可以直接操作系统资源
+	 * https://tech.meituan.com/2019/02/14/talk-about-java-magic-class-unsafe.html
 	 */
 	@SuppressWarnings("restriction")
 	protected static final sun.misc.Unsafe UNSAFE = MemoryUtils.UNSAFE;
@@ -123,12 +143,17 @@ public abstract class MemorySegment {
 	 * off the heap. If we have this buffer, we must never void this reference, or the memory
 	 * segment will point to undefined addresses outside the heap and may in out-of-order execution
 	 * cases cause segmentation faults.
+	 *
+	 * 堆内存引用，非空。
+	 * 为null，memory is off the heap
 	 */
 	protected final byte[] heapMemory;
 
 	/**
 	 * The address to the data, relative to the heap memory byte array. If the heap memory byte
 	 * array is <tt>null</tt>, this becomes an absolute memory address outside the heap.
+	 *
+	 * 如果 地址指向堆上字节数组，如果为null，则时堆外绝对地址
 	 */
 	protected long address;
 
@@ -185,6 +210,7 @@ public abstract class MemorySegment {
 					+ " ; Max allowed address is " + (Long.MAX_VALUE - Integer.MAX_VALUE - 1));
 		}
 
+		// 注意 分配堆外内存时，
 		this.heapMemory = null;
 		this.address = offHeapAddress;
 		this.addressLimit = this.address + size;
@@ -232,6 +258,7 @@ public abstract class MemorySegment {
 	 *
 	 * @return <tt>true</tt>, if the memory segment is backed by off-heap memory, <tt>false</tt> if
 	 * it is backed by heap memory.
+	 * 堆和非堆 判断标准
 	 */
 	public boolean isOffHeap() {
 		return heapMemory == null;
@@ -835,6 +862,7 @@ public abstract class MemorySegment {
 	public final long getLong(int index) {
 		final long pos = address + index;
 		if (index >= 0 && pos <= addressLimit - 8) {
+			// 使用 Unsafe 来操作 on-heap & off-heap
 			return UNSAFE.getLong(heapMemory, pos);
 		}
 		else if (address > addressLimit) {

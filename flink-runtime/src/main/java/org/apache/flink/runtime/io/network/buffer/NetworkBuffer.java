@@ -391,11 +391,13 @@ public class NetworkBuffer extends AbstractReferenceCountedByteBuf implements Bu
 		}
 
 		if (memorySegment.isOffHeap()) {
+			// 拷贝 堆外
 			byte[] tmp = new byte[length];
 			ByteBuffer tmpBuf = memorySegment.wrap(index, length);
 			tmpBuf.get(tmp);
 			out.write(tmp);
 		} else {
+			// 堆上
 			out.write(memorySegment.getArray(), index, length);
 		}
 

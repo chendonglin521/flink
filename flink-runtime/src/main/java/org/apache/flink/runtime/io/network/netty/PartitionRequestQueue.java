@@ -48,6 +48,7 @@ import static org.apache.flink.runtime.io.network.netty.NettyMessage.BufferRespo
 /**
  * A nonEmptyReader of partition queues, which listens for channel writability changed
  * events before writing and flushing {@link Buffer} instances.
+ * 记录了所有的 reader
  */
 class PartitionRequestQueue extends ChannelInboundHandlerAdapter {
 

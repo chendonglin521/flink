@@ -167,6 +167,7 @@ public class RemoteInputChannel extends InputChannel {
 				throw new PartitionConnectionException(partitionId, e);
 			}
 
+			// 请求远程result sub partition
 			partitionRequestClient.requestSubpartition(partitionId, subpartitionIndex, this, 0);
 		}
 	}
@@ -417,7 +418,9 @@ public class RemoteInputChannel extends InputChannel {
 	 * @param backlog The number of unsent buffers in the producer's sub partition.
 	 */
 	void onSenderBacklog(int backlog) throws IOException {
+		// 返回申请到的buffers数
 		int numRequestedBuffers = bufferManager.requestFloatingBuffers(backlog + initialCredit);
+
 		if (numRequestedBuffers > 0 && unannouncedCredit.getAndAdd(numRequestedBuffers) == 0) {
 			notifyCreditAvailable();
 		}
@@ -427,7 +430,7 @@ public class RemoteInputChannel extends InputChannel {
 		boolean recycleBuffer = true;
 
 		try {
-			if (expectedSequenceNumber != sequenceNumber) {
+			if (expectedSequenceNumber != sequenceNumber) {	// 判断序列号不一致 报错
 				onError(new BufferReorderingException(expectedSequenceNumber, sequenceNumber));
 				return;
 			}
@@ -464,10 +467,12 @@ public class RemoteInputChannel extends InputChannel {
 				notifyPriorityEvent(sequenceNumber);
 			}
 			if (wasEmpty) {
+				//通知channel 有数据来了
 				notifyChannelNonEmpty();
 			}
 
 			if (backlog >= 0) {
+				// 处理收到了 backlog
 				onSenderBacklog(backlog);
 			}
 		} finally {

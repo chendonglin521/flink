@@ -32,6 +32,7 @@ public class NettyConnectionManager implements ConnectionManager {
 
 	private final NettyServer server;
 
+	// 通过client去创建channel连接
 	private final NettyClient client;
 
 	private final NettyBufferPool bufferPool;
@@ -40,17 +41,22 @@ public class NettyConnectionManager implements ConnectionManager {
 
 	private final NettyProtocol nettyProtocol;
 
+	// 每个TaskManager 启动一个 netty server and client
 	public NettyConnectionManager(
 		ResultPartitionProvider partitionProvider,
 		TaskEventPublisher taskEventPublisher,
 		NettyConfig nettyConfig) {
 
+		// 创建netty server
 		this.server = new NettyServer(nettyConfig);
+		// 创建netty client
 		this.client = new NettyClient(nettyConfig);
 		this.bufferPool = new NettyBufferPool(nettyConfig.getNumberOfArenas());
 
+		// 创建Partition request client factory
 		this.partitionRequestClientFactory = new PartitionRequestClientFactory(client, nettyConfig.getNetworkRetries());
 
+		// 创建netty 交互流
 		this.nettyProtocol = new NettyProtocol(checkNotNull(partitionProvider), checkNotNull(taskEventPublisher));
 	}
 

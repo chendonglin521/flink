@@ -51,6 +51,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * Channel handler to read the messages of buffer response or error response from the
  * producer, to write and flush the unannounced credits for the producer.
  *
+ * client 接受buffer数据
  * <p>It is used in the new network credit-based mode.
  */
 class CreditBasedPartitionRequestClientHandler extends ChannelInboundHandlerAdapter implements NetworkClientHandler {
@@ -180,6 +181,7 @@ class CreditBasedPartitionRequestClientHandler extends ChannelInboundHandlerAdap
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		try {
+			//读取到响应数据
 			decodeMsg(msg);
 		} catch (Throwable t) {
 			notifyAllChannelsOfErrorAndClose(t);
@@ -200,6 +202,7 @@ class CreditBasedPartitionRequestClientHandler extends ChannelInboundHandlerAdap
 			clientOutboundMessages.add((ClientOutboundMessage) msg);
 
 			if (triggerWrite) {
+				// 发消息 给服务端
 				writeAndFlushNextMessageIfPossible(ctx.channel());
 			}
 		} else {
@@ -267,6 +270,7 @@ class CreditBasedPartitionRequestClientHandler extends ChannelInboundHandlerAdap
 			}
 
 			try {
+				// channel响应接收到的 buffer response
 				decodeBufferOrEvent(inputChannel, bufferOrEvent);
 			} catch (Throwable t) {
 				inputChannel.onError(t);
@@ -382,6 +386,7 @@ class CreditBasedPartitionRequestClientHandler extends ChannelInboundHandlerAdap
 
 		@Override
 		public Object buildMessage() {
+			// 这里reset unannounced credit = 0
 			return new AddCredit(inputChannel.getAndResetUnannouncedCredit(), inputChannel.getInputChannelId());
 		}
 	}

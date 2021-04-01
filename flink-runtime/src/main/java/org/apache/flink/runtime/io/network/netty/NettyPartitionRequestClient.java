@@ -44,7 +44,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
  * Partition request client for remote partition requests.
- *
+ *	多个channel 共享
  * <p>This client is shared by all remote input channels, which request a partition
  * from the same {@link ConnectionID}.
  */
@@ -52,8 +52,10 @@ public class NettyPartitionRequestClient implements PartitionRequestClient {
 
 	private static final Logger LOG = LoggerFactory.getLogger(NettyPartitionRequestClient.class);
 
+	/** 建立连接的 socket */
 	private final Channel tcpChannel;
 
+	/** client handler	CreditBasedPartitionRequestClientHandler */
 	private final NetworkClientHandler clientHandler;
 
 	private final ConnectionID connectionId;
@@ -107,15 +109,17 @@ public class NettyPartitionRequestClient implements PartitionRequestClient {
 		LOG.debug("Requesting subpartition {} of partition {} with {} ms delay.",
 				subpartitionIndex, partitionId, delayMs);
 
+		// channel 添加到handler 集合里
 		clientHandler.addInputChannel(inputChannel);
 
+		// netty msg 创建一个Partition Request
 		final PartitionRequest request = new PartitionRequest(
 				partitionId, subpartitionIndex, inputChannel.getInputChannelId(), inputChannel.getInitialCredit());
 
 		final ChannelFutureListener listener = new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture future) throws Exception {
-				if (!future.isSuccess()) {
+				if (!future.isSuccess()) {	// 失败处理
 					clientHandler.removeInputChannel(inputChannel);
 					SocketAddress remoteAddr = future.channel().remoteAddress();
 					inputChannel.onError(
@@ -127,8 +131,10 @@ public class NettyPartitionRequestClient implements PartitionRequestClient {
 			}
 		};
 
-		if (delayMs == 0) {
+		if (delayMs == 0) {	//是否延迟发送
+			//向建立连接的socket， 发送Partition request 请求
 			ChannelFuture f = tcpChannel.writeAndFlush(request);
+			// 注册监听
 			f.addListener(listener);
 		} else {
 			final ChannelFuture[] f = new ChannelFuture[1];

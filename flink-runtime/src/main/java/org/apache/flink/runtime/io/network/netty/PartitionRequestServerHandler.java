@@ -44,6 +44,7 @@ class PartitionRequestServerHandler extends SimpleChannelInboundHandler<NettyMes
 
 	private static final Logger LOG = LoggerFactory.getLogger(PartitionRequestServerHandler.class);
 
+	// ResultPartitionManager
 	private final ResultPartitionProvider partitionProvider;
 
 	private final TaskEventPublisher taskEventPublisher;
@@ -78,12 +79,14 @@ class PartitionRequestServerHandler extends SimpleChannelInboundHandler<NettyMes
 			// ----------------------------------------------------------------
 			// Intermediate result partition requests
 			// ----------------------------------------------------------------
+			/** {@link NettyPartitionRequestClient#requestSubpartition(org.apache.flink.runtime.io.network.partition.ResultPartitionID, int, org.apache.flink.runtime.io.network.partition.consumer.RemoteInputChannel, int)}*/
 			if (msgClazz == PartitionRequest.class) {
 				PartitionRequest request = (PartitionRequest) msg;
 
 				LOG.debug("Read channel on {}: {}.", ctx.channel().localAddress(), request);
 
 				try {
+					// server 端创建 client reader view
 					NetworkSequenceViewReader reader;
 					reader = new CreditBasedSequenceNumberingViewReader(
 						request.receiverId,
@@ -115,7 +118,8 @@ class PartitionRequestServerHandler extends SimpleChannelInboundHandler<NettyMes
 				outboundQueue.cancel(request.receiverId);
 			} else if (msgClazz == CloseRequest.class) {
 				outboundQueue.close();
-			} else if (msgClazz == AddCredit.class) {
+			} else if (msgClazz == AddCredit.class) { /**{@link }*/
+				// credit，client上报可用credit数量
 				AddCredit request = (AddCredit) msg;
 
 				outboundQueue.addCreditOrResumeConsumption(request.receiverId, reader -> reader.addCredit(request.credit));

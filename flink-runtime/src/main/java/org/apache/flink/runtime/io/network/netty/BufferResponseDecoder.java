@@ -60,7 +60,7 @@ class BufferResponseDecoder extends NettyMessageDecoder {
 	@Override
 	public DecodingResult onChannelRead(ByteBuf data) throws Exception {
 		if (bufferResponse == null) {
-			decodeMessageHeader(data);
+			decodeMessageHeader(data);	//解密
 		}
 
 		if (bufferResponse != null) {

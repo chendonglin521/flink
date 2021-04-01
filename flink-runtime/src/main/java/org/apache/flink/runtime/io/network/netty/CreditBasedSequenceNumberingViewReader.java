@@ -39,6 +39,8 @@ import java.io.IOException;
  *
  * <p>It also keeps track of available buffers and notifies the outbound
  * handler about non-emptiness, similar to the {@link LocalInputChannel}.
+ *
+ * Client 端视图，保留在server端
  */
 class CreditBasedSequenceNumberingViewReader implements BufferAvailabilityListener, NetworkSequenceViewReader {
 
@@ -144,8 +146,10 @@ class CreditBasedSequenceNumberingViewReader implements BufferAvailabilityListen
 	private Buffer.DataType getNextDataType(BufferAndBacklog bufferAndBacklog) {
 		final Buffer.DataType nextDataType = bufferAndBacklog.getNextDataType();
 		if (numCreditsAvailable > 0 || nextDataType.isEvent()) {
+			// credit 起作用的地方，如果consumer还有credit buffer，或者event 则返回，data
 			return nextDataType;
 		}
+		// 否则返回NONE，indicates that there is no buffer.
 		return Buffer.DataType.NONE;
 	}
 
@@ -173,6 +177,7 @@ class CreditBasedSequenceNumberingViewReader implements BufferAvailabilityListen
 				throw new IllegalStateException("no credit available");
 			}
 
+			// 如果没有credit，nextDataType = Buffer.DataType.NONE
 			final Buffer.DataType nextDataType = getNextDataType(next);
 			return new BufferAndAvailability(
 				next.buffer(),

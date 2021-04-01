@@ -387,6 +387,7 @@ public abstract class NettyMessage {
 		 *			data buffer will be null if the target channel has been released or the buffer size is 0.
 		 */
 		static BufferResponse readFrom(ByteBuf messageHeader, NetworkBufferAllocator bufferAllocator) {
+			// 获取信息 to response
 			InputChannelID receiverId = InputChannelID.fromByteBuf(messageHeader);
 			int sequenceNumber = messageHeader.readInt();
 			int backlog = messageHeader.readInt();

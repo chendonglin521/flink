@@ -26,13 +26,21 @@ import org.apache.flink.shaded.netty4.io.netty.channel.ChannelHandler;
 
 /**
  * Defines the server and client channel handlers, i.e. the protocol, used by netty.
+ * Server 和 Client handler 集合
  */
 public class NettyProtocol {
 
 	private final NettyMessage.NettyMessageEncoder
 		messageEncoder = new NettyMessage.NettyMessageEncoder();
 
+	/**
+	 *  server端 用来创建sub partition view
+	 */
 	private final ResultPartitionProvider partitionProvider;
+
+	/**
+	 * server端 发布event
+	 */
 	private final TaskEventPublisher taskEventPublisher;
 
 	NettyProtocol(ResultPartitionProvider partitionProvider, TaskEventPublisher taskEventPublisher) {
@@ -81,6 +89,7 @@ public class NettyProtocol {
 			queueOfPartitionQueues);
 
 		return new ChannelHandler[] {
+			// server端执行顺序，同上图。 message encoder -> decoder > partition request server handler -> partition request queue
 			messageEncoder,
 			new NettyMessage.NettyMessageDecoder(),
 			serverHandler,

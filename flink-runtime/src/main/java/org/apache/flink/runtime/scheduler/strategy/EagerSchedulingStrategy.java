@@ -38,6 +38,7 @@ public class EagerSchedulingStrategy implements SchedulingStrategy {
 
 	private final SchedulingTopology schedulingTopology;
 
+	// eager启动时都一起初始化了，不需要更新消费者信息
 	private final DeploymentOption deploymentOption = new DeploymentOption(false);
 
 	public EagerSchedulingStrategy(
@@ -49,6 +50,7 @@ public class EagerSchedulingStrategy implements SchedulingStrategy {
 
 	@Override
 	public void startScheduling() {
+		// deploy all
 		allocateSlotsAndDeploy(SchedulingStrategyUtils.getAllVertexIdsFromTopology(schedulingTopology));
 	}
 

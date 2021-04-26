@@ -44,10 +44,12 @@ public class InputDependencyConstraintChecker {
 
 	public boolean check(final SchedulingExecutionVertex schedulingExecutionVertex) {
 		if (Iterables.isEmpty(schedulingExecutionVertex.getConsumedResults())) {
+			// 如果没有上游即 source vertex 可以直接部署！
 			return true;
 		}
 
 		final InputDependencyConstraint inputConstraint = schedulingExecutionVertex.getInputDependencyConstraint();
+		// 检查上游consumer result 是否可以消费
 		switch (inputConstraint) {
 			case ANY:
 				return checkAny(schedulingExecutionVertex);
@@ -89,6 +91,7 @@ public class InputDependencyConstraintChecker {
 	}
 
 	private boolean partitionConsumable(SchedulingResultPartition partition) {
+		// BLOCKING type 需要result partition 全部完成
 		if (BLOCKING.equals(partition.getResultType())) {
 			return intermediateDataSetManager.allPartitionsFinished(partition);
 		} else {
@@ -103,6 +106,7 @@ public class InputDependencyConstraintChecker {
 
 		List<SchedulingResultPartition> markSchedulingResultPartitionFinished(SchedulingResultPartition srp) {
 			SchedulingIntermediateDataSet intermediateDataSet = getSchedulingIntermediateDataSet(srp.getResultId());
+			// 全部完成才可以部署，否则返回空
 			if (intermediateDataSet.markPartitionFinished(srp.getId())) {
 				return intermediateDataSet.getSchedulingResultPartitions();
 			}

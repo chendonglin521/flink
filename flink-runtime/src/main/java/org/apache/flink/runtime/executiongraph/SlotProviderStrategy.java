@@ -80,6 +80,7 @@ public abstract class SlotProviderStrategy {
 				return new BatchSlotProviderStrategy(slotProvider);
 			case LAZY_FROM_SOURCES:
 			case EAGER:
+				// normal slot provider different with timeout
 				return new NormalSlotProviderStrategy(slotProvider, allocationTimeout);
 			default:
 				throw new IllegalArgumentException(String.format("Unknown scheduling mode: %s", scheduleMode));
@@ -98,6 +99,7 @@ public abstract class SlotProviderStrategy {
 
 		@Override
 		public CompletableFuture<LogicalSlot> allocateSlot(SlotRequestId slotRequestId, ScheduledUnit scheduledUnit, SlotProfile slotProfile) {
+			// 调用provider allocateBatchSlot without timeout
 			return slotProvider.allocateBatchSlot(slotRequestId, scheduledUnit, slotProfile);
 		}
 	}
@@ -112,6 +114,7 @@ public abstract class SlotProviderStrategy {
 
 		@Override
 		public CompletableFuture<LogicalSlot> allocateSlot(SlotRequestId slotRequestId, ScheduledUnit scheduledUnit, SlotProfile slotProfile) {
+			// with timeout
 			return slotProvider.allocateSlot(slotRequestId, scheduledUnit, slotProfile, allocationTimeout);
 		}
 	}

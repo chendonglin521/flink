@@ -71,14 +71,17 @@ public class LazyFromSourcesSchedulingStrategy implements SchedulingStrategy {
 		for (SchedulingExecutionVertex schedulingVertex : schedulingTopology.getVertices()) {
 			DeploymentOption option = nonUpdateOption;
 			for (SchedulingResultPartition srp : schedulingVertex.getProducedResults()) {
-				if (srp.getResultType().isPipelined()) {
+				// blocking 段进行部署，如果下游pipelined需要激活即通知更新
+			if (srp.getResultType().isPipelined()) {
 					option = updateOption;
 				}
+				// 后面check 时候使用
 				inputConstraintChecker.addSchedulingResultPartition(srp);
 			}
 			deploymentOptions.put(schedulingVertex.getId(), option);
 		}
 
+		// 传入全部，然后筛选符合条件的
 		allocateSlotsAndDeployExecutionVertices(schedulingTopology.getVertices());
 	}
 
@@ -103,7 +106,9 @@ public class LazyFromSourcesSchedulingStrategy implements SchedulingStrategy {
 
 		final Set<SchedulingExecutionVertex> verticesToSchedule = IterableUtils
 			.toStream(schedulingTopology.getVertex(executionVertexId).getProducedResults())
+			// filter blocked vertex，因为pipeline 上次已经部署了
 			.filter(partition -> partition.getResultType().isBlocking())
+			// 全部finished
 			.flatMap(partition -> inputConstraintChecker.markSchedulingResultPartitionFinished(partition).stream())
 			.flatMap(partition -> IterableUtils.toStream(partition.getConsumers()))
 			.collect(Collectors.toSet());
@@ -132,8 +137,10 @@ public class LazyFromSourcesSchedulingStrategy implements SchedulingStrategy {
 		// when scheduling other vertices
 		IterableUtils.toStream(schedulingTopology.getVertices())
 			.filter((v -> vertexSet.contains(v)))
+			// 主要check Input限制是否满足
 			.filter(IS_IN_CREATED_EXECUTION_STATE.and(isInputConstraintSatisfied()))
 			.map(v -> new ExecutionVertexDeploymentOption(v.getId(), deploymentOptions.get(v.getId())))
+			// 为筛选后的ExecutionVertexDep 进行申请slot 和deploy
 			.forEach(d -> schedulerOperations.allocateSlotsAndDeploy(Collections.singletonList(d)));
 	}
 

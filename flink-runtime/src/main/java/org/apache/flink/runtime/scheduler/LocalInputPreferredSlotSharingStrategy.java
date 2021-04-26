@@ -207,6 +207,7 @@ class LocalInputPreferredSlotSharingStrategy implements SlotSharingStrategy {
 
 			for (SchedulingResultPartition partition : executionVertex.getConsumedResults()) {
 				final ExecutionVertexID producerVertexId = partition.getProducer().getId();
+				// 判断是否是同一个slot sharing group
 				if (!inSameLogicalSlotSharingGroup(producerVertexId, executionVertexId)) {
 					continue;
 				}
@@ -214,6 +215,7 @@ class LocalInputPreferredSlotSharingStrategy implements SlotSharingStrategy {
 				final ExecutionSlotSharingGroup producerGroup = executionSlotSharingGroupMap.get(producerVertexId);
 
 				checkState(producerGroup != null);
+				// 每个组内 不能存在相同的JobVertexID的
 				if (isGroupAvailableForVertex(producerGroup, executionVertexId)) {
 					return producerGroup;
 				}

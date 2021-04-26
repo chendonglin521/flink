@@ -119,9 +119,11 @@ public class DefaultSchedulerComponents {
 			final Configuration jobMasterConfiguration,
 			final SlotPool slotPool,
 			final Time slotRequestTimeout) {
-
+		// slot 选择策略
 		final SlotSelectionStrategy slotSelectionStrategy = selectSlotSelectionStrategy(jobMasterConfiguration);
+		// 为task分配申请slot
 		final Scheduler scheduler = new SchedulerImpl(slotSelectionStrategy, slotPool);
+		// slot provider wrapper 生成对应的strategy 根据 mode和 provider
 		final SlotProviderStrategy slotProviderStrategy = SlotProviderStrategy.from(
 			scheduleMode,
 			scheduler,
@@ -135,9 +137,11 @@ public class DefaultSchedulerComponents {
 	private static SchedulingStrategyFactory createLegacySchedulingStrategyFactory(final ScheduleMode scheduleMode) {
 		switch (scheduleMode) {
 			case EAGER:
+				// deploy all
 				return new EagerSchedulingStrategy.Factory();
 			case LAZY_FROM_SOURCES_WITH_BATCH_SLOT_REQUEST:
 			case LAZY_FROM_SOURCES:
+				// deploy pipelined -> blocking after all finished, activate upstream consumers
 				return new LazyFromSourcesSchedulingStrategy.Factory();
 			default:
 				throw new IllegalStateException("Unsupported schedule mode " + scheduleMode);
@@ -149,11 +153,14 @@ public class DefaultSchedulerComponents {
 			final Configuration jobMasterConfiguration,
 			final SlotPool slotPool,
 			final Time slotRequestTimeout) {
-
+		// slot 选择策略
 		final SlotSelectionStrategy slotSelectionStrategy = selectSlotSelectionStrategy(jobMasterConfiguration);
+
 		final PhysicalSlotRequestBulkChecker bulkChecker = PhysicalSlotRequestBulkCheckerImpl
 			.createFromSlotPool(slotPool, SystemClock.getInstance());
+		// slot provider
 		final PhysicalSlotProvider physicalSlotProvider = new PhysicalSlotProviderImpl(slotSelectionStrategy, slotPool);
+
 		final ExecutionSlotAllocatorFactory allocatorFactory = new SlotSharingExecutionSlotAllocatorFactory(
 			physicalSlotProvider,
 			scheduleMode != ScheduleMode.LAZY_FROM_SOURCES_WITH_BATCH_SLOT_REQUEST,

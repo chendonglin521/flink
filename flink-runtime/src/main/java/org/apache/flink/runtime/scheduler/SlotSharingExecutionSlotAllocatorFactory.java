@@ -48,6 +48,8 @@ class SlotSharingExecutionSlotAllocatorFactory implements ExecutionSlotAllocator
 
 	@Override
 	public ExecutionSlotAllocator createInstance(final ExecutionSlotAllocationContext context) {
+		// tries to reduce remote data exchanges.
+		// Execution vertices, which are connected and belong to the same SlotSharingGroup, tend to be put in the same ExecutionSlotSharingGroup
 		SlotSharingStrategy slotSharingStrategy = new LocalInputPreferredSlotSharingStrategy(
 			context.getSchedulingTopology(),
 			context.getLogicalSlotSharingGroups(),

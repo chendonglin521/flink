@@ -150,6 +150,7 @@ public class PhysicalSlotRequestBulkCheckerImpl implements PhysicalSlotRequestBu
 			final Set<AllocationID> slotsToExclude) {
 
 		return slotsRetriever.get().stream()
+			// batch slot request
 			.filter(slotInfo -> !slotInfo.willBeOccupiedIndefinitely())
 			.filter(slotInfo -> !slotsToExclude.contains(slotInfo.getAllocationId()))
 			.collect(Collectors.toSet());

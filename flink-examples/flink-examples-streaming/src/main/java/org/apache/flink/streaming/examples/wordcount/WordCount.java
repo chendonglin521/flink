@@ -17,9 +17,11 @@
 
 package org.apache.flink.streaming.examples.wordcount;
 
+import org.apache.flink.api.common.RuntimeExecutionMode;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.utils.MultipleParameterTool;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.examples.wordcount.util.WordCountData;
@@ -56,6 +58,10 @@ public class WordCount {
 
 		// set up the execution environment
 		final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+		env.setRuntimeMode(RuntimeExecutionMode.BATCH);
+//		Configuration conf = new Configuration();
+//		conf.setString("execution.shuffle-mode", "ALL_EDGES_BLOCKING");
+//		env.configure(conf,);
 
 		// make parameters available in the web interface
 		env.getConfig().setGlobalJobParameters(params);
@@ -76,22 +82,23 @@ public class WordCount {
 			System.out.println("Executing WordCount example with default input data set.");
 			System.out.println("Use --input to specify file input.");
 			// get default test text data
-			text = env.fromElements(WordCountData.WORDS);
+			text = env.fromElements(WordCountData.WORDS).setParallelism(1).slotSharingGroup("s1");
 		}
 
 		DataStream<Tuple2<String, Integer>> counts =
 			// split up the lines in pairs (2-tuples) containing: (word,1)
-			text.flatMap(new Tokenizer())
+			text.flatMap(new Tokenizer()).setParallelism(2)
 			// group by the tuple field "0" and sum up tuple field "1"
-			.keyBy(value -> value.f0).sum(1);
+			.keyBy(value -> value.f0).sum(1).setParallelism(2);
 
 		// emit result
 		if (params.has("output")) {
 			counts.writeAsText(params.get("output"));
 		} else {
 			System.out.println("Printing result to stdout. Use --output to specify output path.");
-			counts.print();
+			counts.print().setParallelism(2);
 		}
+		System.out.println(env.getExecutionPlan());
 		// execute program
 		env.execute("Streaming WordCount");
 	}

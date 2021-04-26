@@ -116,6 +116,7 @@ public class SchedulerImpl implements Scheduler {
 			allocationTimeout);
 	}
 
+	// different batchSlot allocationTimeout is null
 	@Override
 	public CompletableFuture<LogicalSlot> allocateBatchSlot(
 			SlotRequestId slotRequestId,
@@ -203,6 +204,7 @@ public class SchedulerImpl implements Scheduler {
 			SlotRequestId slotRequestId,
 			SlotProfile slotProfile,
 			@Nullable Time allocationTimeout) {
+		// different from batch with normal
 		if (allocationTimeout == null) {
 			return slotPool.requestNewAllocatedBatchSlot(slotRequestId, slotProfile.getPhysicalSlotResourceProfile());
 		} else {
